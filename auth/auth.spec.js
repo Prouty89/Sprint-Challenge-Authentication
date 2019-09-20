@@ -33,7 +33,7 @@ describe('auth-router.js', () => {
         .post('/api/auth/register')
         .send({ username: 'BlakeTest', password: 'BlakeTest' });
 
-      await request(server)
+        request(server)
         .post('/api/auth/login')
         .send({ username: 'TakeTest', password: 'MakeTest' })
         .expect(200);
@@ -46,7 +46,7 @@ describe('auth-router.js', () => {
         .post('/api/auth/register')
         .send({ username: 'TableBlake', password: 'TableMake' });
 
-      await request(server)
+         request(server)
         .post('/api/auth/login')
         .send({ username: 'Skewers', password: 'Brewers' })
         .expect('Content-Type', /json/i);
