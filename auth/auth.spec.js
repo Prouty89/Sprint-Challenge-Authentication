@@ -1,52 +1,57 @@
 const request = require('supertest');
-const authRouter = require('./auth-router');
-const db = require('../database/dbConfig');
-const Users = require('./auth-model.js');
+const db = require('../database/dbConfig.js');
+const server = require('../api/server');
 
-describe('register', () => {
-    describe('register status', () => {
-        it('returns 201 created', () => {
-            return request(authRouter)
-                .post('/register')
-                .send({
-                    username: 'test',
-                    password: 'test'
-                })
-                .set('Accept', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IkJsYWtlIiwiaWQiOjEsImlhdCI6MTU2ODk5NjMzMCwiZXhwIjoxNTY5MDgyNzMwfQ.QGrUh-7gspUcrINLnAWJlwfmg-FawWHoFHqBX04FOP4')
-                .then(res => {
-                    expect(res.status).toBe(201);
-                })
-        })
-    })
-    describe('add()', () => {
-        it('should insert user into db', async () => {
-            await Users.add({ username: 'Blake' })
-            let [id] = await db('users');
-            let user = await db('users')
-            .where({ id })
-            .first();
-            expect(user.name).toBe('Blake')
-        })
-    })
-})
-describe('login', () => {
-    describe('check name', () => {
-        it('name should match', async () => {
-            let user = await Users.getByFilter({ username: 'Blake', password: 'Test' })
-            expect(user.username).toBe('Blake')
-        })
-    })
-    describe('login status', () => {
-        it('returns 200', () => {
-            return request(authRouter)
-                .post('/login')
-                .send({
-                    username: 'Blake',
-                    password: 'Test'
-                })
-                .then(res => {
-                    expect(res.status).toBe(200)
-                })
-        })
-    })
-})
+describe('auth-router.js', () => {
+  beforeEach(async () => {
+    await db('users').truncate();
+  });
+
+  describe('POST to /api/auth/register', () => {
+    it('responds with 201 OK', async done => {
+      await request(server)
+        .post('/api/auth/register')
+        .send({ username: 'TestBlake', password: 'TestBlake' })
+        .expect(201);
+
+      done();
+    });
+
+    it('responds with JSON', async done => {
+      await request(server)
+        .post('/api/auth/register')
+        .send({ username: 'test', password: 'test' })
+        .expect('Content-Type', /json/i);
+
+      done();
+    });
+  });
+
+  describe('POST  to /api/auth/login', () => {
+    it('responds with 200 OK', async done => {
+      await request(server)
+        .post('/api/auth/register')
+        .send({ username: 'BlakeTest', password: 'BlakeTest' });
+
+      await request(server)
+        .post('/api/auth/login')
+        .send({ username: 'TakeTest', password: 'MakeTest' })
+        .expect(200);
+
+      done();
+    });
+
+    it('responds with JSON', async done => {
+      await request(server)
+        .post('/api/auth/register')
+        .send({ username: 'TableBlake', password: 'TableMake' });
+
+      await request(server)
+        .post('/api/auth/login')
+        .send({ username: 'Skewers', password: 'Brewers' })
+        .expect('Content-Type', /json/i);
+
+      done();
+    });
+  });
+});
