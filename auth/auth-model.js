@@ -7,7 +7,7 @@ module.exports = {
 }
 
 function add(user) {
-    return db('users').insert(user);
+    return db('users').insert(user, 'id');
 }
 function getByFilter(filter) {
     return db('users').where(filter);

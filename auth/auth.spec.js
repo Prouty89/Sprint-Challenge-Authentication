@@ -1,6 +1,6 @@
 const request = require('supertest');
 const authRouter = require('./auth-router');
-const db = require('../database/dbConfig.js');
+const db = require('../database/dbConfig');
 const Users = require('./auth-model.js');
 
 describe('register', () => {
@@ -18,11 +18,14 @@ describe('register', () => {
                 })
         })
     })
-    describe('length of db', () => {
+    describe('add()', () => {
         it('should insert user into db', async () => {
-            await Users.add({ username: "test", password: "test" })
-            const users = await db('users');
-            expect(users).toHaveLength(1)
+            await Users.add({ username: 'Blake' })
+            let [id] = await db('users');
+            let user = await db('users')
+            .where({ id })
+            .first();
+            expect(user.name).toBe('Blake')
         })
     })
 })
